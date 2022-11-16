@@ -1,0 +1,189 @@
+local Console=Instance.new("ScreenGui")
+local frame=Instance.new("Frame")
+local monitor=Instance.new("ScrollingFrame")
+local prompt=Instance.new("TextBox")
+local resize=Instance.new("ImageButton")
+local send=Instance.new("ImageButton")
+
+Console.Name="Console"
+Console.Parent=game.Players.knight4him:WaitForChild("PlayerGui")
+Console.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
+
+frame.Name="frame"
+frame.Parent=Console
+frame.BackgroundColor3=Color3.fromRGB(255,255,255)
+frame.Position=UDim2.new(0, 60, 0, 60)
+frame.Size=UDim2.new(0, 300, 0, 200)
+frame.ZIndex=0
+frame.Draggable=true
+frame.Active=true
+frame.Selectable=true
+
+resize.Name="resize"
+resize.Parent=frame
+resize.BackgroundColor3=Color3.fromRGB(255,85,0)
+resize.Size=UDim2.new(0.06,0,0.06,0)
+resize.Position=UDim2.new(0.94,0,0.94,0)
+resize.BackgroundTransparency=0.8
+Instance.new("UICorner",resize)
+local startDrag, startSize
+local mouse = game.Players.LocalPlayer:GetMouse()
+local function finishResize(tr)
+	resize.BackgroundTransparency = tr
+	startDrag = nil
+end
+resize.MouseButton1Down:Connect(function()
+	if not startDrag then
+		startSize = frame.AbsoluteSize		
+		startDrag = Vector2.new(mouse.X, mouse.Y)
+		resize.BackgroundTransparency = 1
+		end
+end)
+
+resize.MouseMoved:Connect(function()
+	if startDrag then		
+		local m = Vector2.new(mouse.X, mouse.Y)
+		local mouseMoved = Vector2.new(m.X - startDrag.X, m.Y - startDrag.Y)
+
+		local s = startSize + mouseMoved
+		frame.Size = UDim2.fromOffset(s.X, s.Y)
+		for i,t in monitor:GetChildren() do
+			t.Size=UDim2.new(0,frame.Size.X.Offset,0,20)
+		end
+	end
+end)
+
+resize.MouseEnter:Connect(function()
+	finishResize(0.3)				
+end)
+
+resize.MouseLeave:Connect(function()
+	finishResize(0.8)
+end)	
+
+resize.MouseButton1Up:Connect(function()
+	finishResize(0.3)
+end)
+
+resize.ZIndex=3
+
+monitor.Name="monitor"
+monitor.Parent=frame
+monitor.BackgroundColor3=Color3.fromRGB(22,22,22)
+monitor.Position=UDim2.new(0, 0, 0.06, 0)
+monitor.Size=UDim2.new(1, 0, 0.8, 0)
+monitor.ScrollBarThickness=0
+monitor.ZIndex=1
+monitor.CanvasSize=UDim2.new(0,0,20,0)
+
+prompt.Name="prompt"
+prompt.Parent = frame
+prompt.BackgroundColor3=Color3.fromRGB(22,22,22)
+prompt.Position=UDim2.new(0, 0,0.8, 0)
+prompt.Size = UDim2.new(0.85, 0,0.2, 0)
+prompt.Font=Enum.Font.Arcade
+prompt.PlaceholderColor3=Color3.fromRGB(255,255,255)
+prompt.PlaceholderText = "Console"
+prompt.Text=""
+prompt.TextColor3=Color3.fromRGB(255,255,255)
+prompt.TextScaled=true
+prompt.TextSize=14
+prompt.TextStrokeTransparency=0
+prompt.TextWrapped=true
+prompt.ZIndex=2
+
+send.Name="send"
+send.Parent=frame
+send.Image="http://www.roblox.com/asset/?id=278543076"
+send.BackgroundColor3=Color3.fromRGB(22,22,22)
+send.Size=UDim2.new(0.15,0,0.2,0)
+send.Position=UDim2.new(0.85,0,0.8,0)
+local path=game
+local pathname="game"
+local offset=0
+send.Activated:Connect(function()
+	local text = prompt.Text
+	local output
+	if text:find("cd ") then
+		text=text:gsub("cd ","")
+		text=text:split(".")
+		for n,t in text do
+			if t=="game" then
+				path=game
+				pathname="game"
+				continue
+			end
+			if path[t] then
+				path=path[t]
+				if t=="Parent" then
+					pathname=pathname:sub(0,1-pathname:reverse():find("%.")-2)
+				else
+					pathname=pathname .. "." .. t
+				end
+			end
+		end
+		output=Instance.new("TextLabel", monitor)
+		output.Name="output"
+		output.BackgroundColor3=Color3.fromRGB(22,22,22)
+		output.TextColor3=Color3.fromRGB(255,255,255)
+		output.Size=UDim2.new(0,frame.Size.X.Offset,0,20)
+		output.Position=UDim2.new(0,0,0,offset)
+		monitor.CanvasPosition=Vector2.new(0,offset-50)
+		offset+=20
+		output.Text = pathname
+	end
+	if text:find("ls") then
+		if text:find("ls") < 2 then
+			for n,t in path:GetChildren() do
+				output=Instance.new("TextLabel",monitor)
+				output.Name="output"
+				output.BackgroundColor3=Color3.fromRGB(22,22,22)
+				output.TextColor3=Color3.fromRGB(255,255,255)
+				output.Size=UDim2.new(0,frame.Size.X.Offset,0,20)
+				output.Position=UDim2.new(0,0,0,offset)
+				offset+=20
+				output.Text=t.Name
+			end
+		end
+	end
+	if text:find("pwd")  then
+		if text:find("pwd") < 3 then
+			output=Instance.new("TextLabel",monitor)
+			output.Name="output"
+			output.BackgroundColor3=Color3.fromRGB(22,22,22)
+			output.TextColor3=Color3.fromRGB(255,255,255)
+			output.Size=UDim2.new(0,frame.Size.X.Offset,0,20)
+			output.Position=UDim2.new(0,0,0,offset)
+			monitor.CanvasPosition=Vector2.new(0,offset-50)
+			offset+=20
+			output.Text=pathname
+		end
+	end
+	if text:find("clear") then
+		if text:find("clear") < 5 then
+			monitor:ClearAllChildren()
+			monitor.CanvasPosition=Vector2.new(0,0)
+			offset=0
+		end
+	end
+	if text:find("set ") then
+		text=text:gsub("set ","")
+		text=text:split(" ")
+		if text[2] == "true" then
+			path[text[1]]=true
+		elseif text[2] == "false" then
+			path[text[1]]=false
+		else
+			path[text[1]]=text[2]
+		end
+		output=Instance.new("TextLabel",monitor)
+		output.Name="output"
+		output.BackgroundColor3=Color3.fromRGB(22,22,22)
+		output.TextColor3=Color3.fromRGB(255,255,255)
+		output.Size=UDim2.new(0,frame.Size.X.Offset,0,20)
+		output.Position=UDim2.new(0,0,0,offset)
+		monitor.CanvasPosition=Vector2.new(0,offset-50)
+		offset+=20
+		output.Text="set " .. text[1] .. " to " .. text[2]
+	end
+end)
