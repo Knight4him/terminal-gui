@@ -5,6 +5,8 @@ local prompt=Instance.new("TextBox")
 local resize=Instance.new("ImageButton")
 local send=Instance.new("ImageButton")
 
+local bool={["true"]=true, ["false"]=false}
+
 Console.Name="Console"
 Console.Parent=game.Players.knight4him:WaitForChild("PlayerGui")
 Console.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
@@ -170,15 +172,18 @@ send.Activated:Connect(function()
 	if text:find("set ") then
 		text=text:gsub("set ","")
 		text=text:split(" ")
-		if text[1] == "Position" then
+		if typeof(path[text[1]]) == "Vector3" then
 			path[text[1]]=Vector3.new(text[2])
-		elseif text[2] == "true" then
-			path[text[1]]=true
-		elseif text[2] == "false" then
-			path[text[1]]=false
-		else
-			path[text[1]]=text[2]
+		elseif typeof(path[text[1]]) == "boolean" then
+			path[text[1]]=bool[text[2]]
+		elseif typeof(path[text[1]]) == "number" then
+			if tonumber(text[2]) then
+				path[text[1]]=tonumber(text[2])
+			end
 		end
+	elseif typeof(path[text[1]]) == "string"  then
+		path[text[1]] = text[2]
+	end
 		output=Instance.new("TextLabel",monitor)
 		output.Name="output"
 		output.BackgroundColor3=Color3.fromRGB(22,22,22)
