@@ -91,6 +91,7 @@ prompt.TextSize=14
 prompt.TextStrokeTransparency=0
 prompt.TextWrapped=true
 prompt.ZIndex=2
+prompt.ClearTextOnFocus=false
 
 send.Name="send"
 send.Parent=frame
@@ -99,7 +100,7 @@ send.BackgroundColor3=Color3.fromRGB(22,22,22)
 send.Size=UDim2.new(0.15,0,0.2,0)
 send.Position=UDim2.new(0.85,0,0.8,0)
 local path=game
-local pathname="game"
+local pathname=path:GetFullName()
 local offset=0
 send.Activated:Connect(function()
 	local text = prompt.Text
@@ -110,18 +111,13 @@ send.Activated:Connect(function()
 		for n,t in text do
 			if t=="game" then
 				path=game
-				pathname="game"
 				continue
 			end
 			if path[t] then
 				path=path[t]
-				if t=="Parent" then
-					pathname=pathname:sub(0,1-pathname:reverse():find("%.")-2)
-				else
-					pathname=pathname .. "." .. t
-				end
 			end
 		end
+		pathname = path:GetFullName()
 		output=Instance.new("TextLabel", monitor)
 		output.Name="output"
 		output.BackgroundColor3=Color3.fromRGB(22,22,22)
@@ -131,6 +127,7 @@ send.Activated:Connect(function()
 		monitor.CanvasPosition=Vector2.new(0,offset-50)
 		offset+=20
 		output.Text = pathname
+		prompt.Text=""
 	end
 	if text:find("ls") then
 		if text:find("ls") < 2 then
@@ -141,8 +138,10 @@ send.Activated:Connect(function()
 				output.TextColor3=Color3.fromRGB(255,255,255)
 				output.Size=UDim2.new(0,frame.Size.X.Offset,0,20)
 				output.Position=UDim2.new(0,0,0,offset)
+				monitor.CanvasPosition=Vector2.new(0,offset-(n*20))
 				offset+=20
 				output.Text=t.Name
+				prompt.Text=""
 			end
 		end
 	end
@@ -157,6 +156,7 @@ send.Activated:Connect(function()
 			monitor.CanvasPosition=Vector2.new(0,offset-50)
 			offset+=20
 			output.Text=pathname
+			prompt.Text=""
 		end
 	end
 	if text:find("clear") then
@@ -164,12 +164,15 @@ send.Activated:Connect(function()
 			monitor:ClearAllChildren()
 			monitor.CanvasPosition=Vector2.new(0,0)
 			offset=0
+			prompt.Text=""
 		end
 	end
 	if text:find("set ") then
 		text=text:gsub("set ","")
 		text=text:split(" ")
-		if text[2] == "true" then
+		if text[1] == "Position" then
+			path[text[1]]=Vector3.new(text[2])
+		elseif text[2] == "true" then
 			path[text[1]]=true
 		elseif text[2] == "false" then
 			path[text[1]]=false
@@ -185,5 +188,6 @@ send.Activated:Connect(function()
 		monitor.CanvasPosition=Vector2.new(0,offset-50)
 		offset+=20
 		output.Text="set " .. text[1] .. " to " .. text[2]
+		prompt.Text=""
 	end
 end)
