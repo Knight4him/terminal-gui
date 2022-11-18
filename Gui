@@ -8,7 +8,7 @@ local send=Instance.new("ImageButton")
 local bool={["true"]=true, ["false"]=false}
 
 Console.Name="Console"
-Console.Parent=game.Players.knight4him:WaitForChild("PlayerGui")
+Console.Parent=game.Players.LocalPlayer:WaitForChild("PlayerGui")
 Console.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
 
 frame.Name="frame"
@@ -136,7 +136,7 @@ send.Activated:Connect(function()
 		output.Size=UDim2.new(0,frame.Size.X.Offset,0,20)
 		output.Position=UDim2.new(0,0,0,offset)
 		monitor.CanvasPosition=Vector2.new(0,offset-50)
-		offset+=20
+		offset=offset+20
 		output.Text = pathname
 		prompt.Text=""
 		
@@ -147,7 +147,7 @@ send.Activated:Connect(function()
 		output.TextColor3=Color3.fromRGB(255,255,255)
 		output.Size=UDim2.new(0,frame.Size.X.Offset,0,20)
 		output.Position=UDim2.new(0,0,0,offset)
-		offset+=20
+		offset=offset+20
 		output.Text="Type is " .. path.ClassName
 		for n,t in path:GetChildren() do
 			output=Instance.new("TextLabel",monitor)
@@ -157,7 +157,7 @@ send.Activated:Connect(function()
 			output.Size=UDim2.new(0,frame.Size.X.Offset,0,20)
 			output.Position=UDim2.new(0,0,0,offset)
 			monitor.CanvasPosition=Vector2.new(0,offset-(n*20))
-			offset+=20
+			offset=offset+20
 			output.Text=t.Name
 			prompt.Text=""
 		end
@@ -170,7 +170,7 @@ send.Activated:Connect(function()
 		output.Size=UDim2.new(0,frame.Size.X.Offset,0,20)
 		output.Position=UDim2.new(0,0,0,offset)
 		monitor.CanvasPosition=Vector2.new(0,offset-50)
-		offset+=20
+		offset=offset+20
 		output.Text=pathname
 		prompt.Text=""
 		
@@ -217,7 +217,7 @@ send.Activated:Connect(function()
 			output.Size=UDim2.new(0,frame.Size.X.Offset,0,20)
 			output.Position=UDim2.new(0,0,0,offset)
 			monitor.CanvasPosition=Vector2.new(0,offset-50)
-			offset+=20
+			offset=offset+20
 			output.Text="set " .. text[1] .. " to " .. text[2]
 			prompt.Text=""
 		end
