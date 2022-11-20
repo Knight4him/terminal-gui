@@ -5,6 +5,15 @@ local prompt=Instance.new("TextBox")
 local resize=Instance.new("ImageButton")
 local send=Instance.new("ImageButton")
 
+local function valid(pat,p)
+	if pcall(function() local void=pat[p] end) then
+		return pat[p]
+		
+	else
+		return nil
+	end
+end
+
 local bool={["true"]=true, ["false"]=false}
 
 Console.Name="Console"
@@ -123,22 +132,40 @@ send.Activated:Connect(function()
 				continue
 			end
 			
-			if pat[t] then
+			if valid(pat,t) then
 				pat=pat[t]
+				text=false
+				
+			else
+				text=t
+				break
 			end
 		end
 		
-		pathname = pat:GetFullName()
-		out=Instance.new("TextLabel", monitor)
-		out.Name="output"
-		out.BackgroundColor3=Color3.fromRGB(22,22,22)
-		out.TextColor3=Color3.fromRGB(255,255,255)
-		out.Size=UDim2.new(0,frame.Size.X.Offset,0,20)
-		out.Position=UDim2.new(0,0,0,offset)
-		monitor.CanvasPosition=Vector2.new(0,offset-50)
-		offset=offset+20
-		out.Text = pathname
-		prompt.Text=""
+		if text then
+			out=Instance.new("TextLabel", monitor)
+			out.Name="output"
+			out.BackgroundColor3=Color3.fromRGB(22,22,22)
+			out.TextColor3=Color3.fromRGB(255,255,255)
+			out.Size=UDim2.new(0,frame.Size.X.Offset,0,20)
+			out.Position=UDim2.new(0,0,0,offset)
+			monitor.CanvasPosition=Vector2.new(0,offset-50)
+			offset=offset+20
+			out.Text = pat.Name .. " has no directory " .. text
+			
+		else
+			pathname = pat:GetFullName()
+			out=Instance.new("TextLabel", monitor)
+			out.Name="output"
+			out.BackgroundColor3=Color3.fromRGB(22,22,22)
+			out.TextColor3=Color3.fromRGB(255,255,255)
+			out.Size=UDim2.new(0,frame.Size.X.Offset,0,20)
+			out.Position=UDim2.new(0,0,0,offset)
+			monitor.CanvasPosition=Vector2.new(0,offset-50)
+			offset=offset+20
+			out.Text = pathname
+			prompt.Text=""
+		end
 		
 	elseif text:sub(0,2):lower() == "ls" then
 		out=Instance.new("TextLabel",monitor)
@@ -149,6 +176,7 @@ send.Activated:Connect(function()
 		out.Position=UDim2.new(0,0,0,offset)
 		offset=offset+20
 		out.Text="Type is " .. pat.ClassName
+		
 		for n,t in pat:GetChildren() do
 			out=Instance.new("TextLabel",monitor)
 			out.Name="output"
@@ -163,6 +191,7 @@ send.Activated:Connect(function()
 		end
 		
 	elseif text:sub(0,3):lower() == "pwd" then
+		pathname=pat:GetFullName()
 		out=Instance.new("TextLabel",monitor)
 		out.Name="output"
 		out.BackgroundColor3=Color3.fromRGB(22,22,22)
@@ -184,32 +213,34 @@ send.Activated:Connect(function()
 		text=text:sub(5)
 		text=text:split(" ")
 		local Val=text[2]:split(",")
-		if typeof(pat[text[1]]) == "Vector3" then
+		
+		if typeof(valid(pat,text[1])) == "Vector3" then
 			pat[text[1]]=Vector3.new(Val[1],Val[2],Val[3])
 			
-		elseif typeof(pat[text[1]]) == "boolean" then
+		elseif typeof(valid(pat,text[1])) == "boolean" then
 			pat[text[1]]=bool[text[2]]
 			
-		elseif typeof(pat[text[1]]) == "number" then
+		elseif typeof(valid(pat,text[1])) == "number" then
 			if tonumber(text[2]) then
 				pat[text[1]]=tonumber(text[2])
 			end
 			
-		elseif typeof(pat[text[1]]) == "string"  then
+		elseif typeof(valid(pat,text[1])) == "string"  then
 			while #(text) > 2 do
 				text[2]=text[2] .. " " .. text[3]
 				table.remove(text,3)
 			end
 			pat[text[1]] = text[2]
 			
-		elseif typeof(pat[text[1]]) == "Color3" then
+		elseif typeof(valid(pat,text[1])) == "Color3" then
 			local Val=text[2]:split(",")
-			pat[text[1]] = Color3.fromRGB(Val[1],Val[2],Val[3])		
+			pat[text[1]] = Color3.fromRGB(Val[1],Val[2],Val[3])
+			
 		else
-			text=false
+			Val=nil
 		end
 		
-		if text then
+		if Val == nil then
 			out=Instance.new("TextLabel",monitor)
 			out.Name="output"
 			out.BackgroundColor3=Color3.fromRGB(22,22,22)
@@ -218,7 +249,18 @@ send.Activated:Connect(function()
 			out.Position=UDim2.new(0,0,0,offset)
 			monitor.CanvasPosition=Vector2.new(0,offset-50)
 			offset=offset+20
-			out.Text="set " .. text[1] .. " to " .. text[2]
+			out.Text=pat.Name .. " does not have the property " .. text[1]
+			
+		else
+			out=Instance.new("TextLabel",monitor)
+			out.Name="output"
+			out.BackgroundColor3=Color3.fromRGB(22,22,22)
+			out.TextColor3=Color3.fromRGB(255,255,255)
+			out.Size=UDim2.new(0,frame.Size.X.Offset,0,20)
+			out.Position=UDim2.new(0,0,0,offset)
+			monitor.CanvasPosition=Vector2.new(0,offset-50)
+			offset=offset+20
+			out.Text="Set " .. text[1] .. " to " .. text[2]
 			prompt.Text=""
 		end
 	end
